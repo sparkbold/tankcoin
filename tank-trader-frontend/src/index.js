@@ -1,6 +1,7 @@
 const URL = "http://localhost:3000/games";
 
 document.addEventListener("DOMContentLoaded", function() {
+  //---------Start Game button---------------//
   document.getElementById("play-button").addEventListener("click", () => {
     let chartContainer = document.getElementById("chart");
     chartContainer.innerHTML = `
@@ -10,13 +11,14 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-// fetch data from json backend - return array of price
+// --------fetch data from json backend------//
 function fetchPrice(url) {
   fetch(url)
     .then(response => response.json())
     .then(data => render(data.prices));
 }
-// parsing data
+
+// -----------------render chart------------//
 function render(data) {
   //create dataset
   let dataset = [];
@@ -39,7 +41,7 @@ function render(data) {
   }, 1000);
 }
 
-// draw chart with json data
+// ---------------draw Chart---------------------//
 function drawChart(data) {
   let ctx = document.getElementById("tradeChart");
 
@@ -75,6 +77,16 @@ function drawChart(data) {
     }
   });
 }
+
+//----------create events--------------//
+function createEvents() {}
+
+//----------create user--------------//
+function createUser() {}
+
+//--------save game-------------//
+function saveGame() {}
+
 // Update chart with new data
 // function addData(chart, label, data) {
 //   chart.data.labels.push(label);
