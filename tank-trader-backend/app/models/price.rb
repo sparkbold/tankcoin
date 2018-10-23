@@ -4,6 +4,7 @@ class Price < ApplicationRecord
 
     def new_price(event = nil)
         price = 0
+        puts event
         if event == nil 
             # use the normal distribution to add the price
             # sigma = 1
