@@ -1,6 +1,7 @@
-const URL = "http://localhost:3000/prices";
+const URL = "http://localhost:3000/games";
 
 document.addEventListener("DOMContentLoaded", function() {
+  //---------Start Game button---------------//
   document.getElementById("play-button").addEventListener("click", () => {
     let chartContainer = document.getElementById("chart");
     chartContainer.innerHTML = `
@@ -10,21 +11,19 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-// fetch data from json backend - return array of price
+// --------fetch data from json backend------//
 function fetchPrice(url) {
   fetch(url)
     .then(response => response.json())
-    .then(data => render(data));
+    .then(data => render(data.prices));
 }
-// parsing data
-function render(data) {
-  //listening to user click play button
-  //pause 3s and start the game
 
+// -----------------render chart------------//
+function render(data) {
   //create dataset
   let dataset = [];
   for (let i = 0; i < data.length; i++) {
-    const el = { time: i, price: data[i] };
+    const el = { time: i, price: data[i].value };
     dataset.push(el);
   }
 
@@ -32,22 +31,22 @@ function render(data) {
   let i = 0;
   let myInt = setInterval(() => {
     let newDataSet = dataset.slice(0, i + 1);
-    console.log(newDataSet);
-    drawChart(newDataSet, i);
+    // console.log(newDataSet);
+    drawChart(newDataSet);
     i++;
 
-    if (i === 29) {
+    if (i === 59) {
       clearInterval(myInt);
     }
   }, 1000);
 }
 
-// draw chart with json data
+// ---------------draw Chart---------------------//
 function drawChart(data) {
   let ctx = document.getElementById("tradeChart");
-  // console.log(data.map(el => el.time));
+
   let dataset = {
-    labels: data.map(el => el.time),
+    labels: data.map(el => (el = "")),
     datasets: [
       {
         data: data.map(el => el.price),
@@ -58,6 +57,7 @@ function drawChart(data) {
       }
     ]
   };
+  console.log(dataset);
   let myLineChart = new Chart(ctx, {
     type: "line",
     data: dataset,
@@ -66,43 +66,32 @@ function drawChart(data) {
         yAxes: [
           {
             ticks: {
-              beginAtZero: false,
-              fixedStepSize: 20,
-              fontSize: 10
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Price($)"
-            }
-          }
-        ],
-
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: "Time (s)"
-            },
-            ticks: {
-              fontSize: 10,
-              max: 60,
-              min: 0,
-              stepSize: 1
+              beginAtZero: true
             }
           }
         ]
       },
-      responsive: false,
-      maintainAspectRatio: true,
+      events: ["click"],
+      responsive: true,
       animation: { duration: 0 }
     }
   });
 }
+
+//----------create events--------------//
+function createEvents() {}
+
+//----------create user--------------//
+function createUser() {}
+
+//--------save game-------------//
+function saveGame() {}
+
 // Update chart with new data
-function addData(chart, label, data) {
-  chart.data.labels.push(label);
-  chart.data.datasets.forEach(dataset => {
-    dataset.data.push(data);
-  });
-  chart.update();
-}
+// function addData(chart, label, data) {
+//   chart.data.labels.push(label);
+//   chart.data.datasets.forEach(dataset => {
+//     dataset.data.push(data);
+//   });
+//   chart.update();
+// }
