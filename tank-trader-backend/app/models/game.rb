@@ -5,10 +5,13 @@ class Game < ApplicationRecord
   has_many :prices
 
   def create_events(num_of_events)
-    number_of_events = Event.all.length
+    events = Event.all
+    event_ids = []
+    events.each do |e|
+      event_ids << e.id
+    end
     num_of_events.times do
-      puts 'running'
-      GameEvent.create(game_id: self.id, event_id: rand(1..number_of_events))
+      GameEvent.create(game_id: self.id, event_id: event_ids.sample)
     end
   end
 
@@ -24,14 +27,11 @@ class Game < ApplicationRecord
       use_events << 0
     end
     
-
     game = Game.find(self.id)
     game_event_intervals = []
     game.events.each do |game|
       game_event_intervals << game.time_interval
     end
-
-    puts game_event_intervals
 
     event_times = []
     game_event_intervals.each_with_index do |ei, i|

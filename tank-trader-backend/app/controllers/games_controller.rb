@@ -2,7 +2,6 @@ class GamesController < ApplicationController
     
     def index
         games = Game.all
-        binding.pry
         render json: {games: games}
     end
 

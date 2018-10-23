@@ -13,10 +13,11 @@ class Price < ApplicationRecord
             # exponent = (rand_number - mean)**2 / (2 * (sigma**2))
             # beta = 1 / ((2 * Math::PI**0.5) * sigma)
             # new_number = (Math.exp(-exponent) * beta)
-            new_number = (rand() - 1) / 100
+            new_number = rand(-0.02..0.02)
             price = new_number
         else
             #  use the event mean/sigma to add the price
+            new_number = rand(event.skewness..event.kurtosis)
             price = new_number
         end
 
