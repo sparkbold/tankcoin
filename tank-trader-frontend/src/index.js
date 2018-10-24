@@ -1,19 +1,7 @@
 const URL = "http://localhost:3000/games";
 
-<<<<<<< HEAD
 document.addEventListener("DOMContentLoaded", function () {
-  //---------Start Game button---------------//
-  document.getElementById("play-button").addEventListener("click", () => {
-    let chartContainer = document.getElementById("chart");
-    chartContainer.innerHTML = `
-    <canvas id="tradeChart" width="800" height="400"></canvas>`;
-    fetchPrice(URL);
-    document.getElementById("play-button").disabled = true;
-  });
-=======
-document.addEventListener("DOMContentLoaded", function() {
   buttonEventListener();
->>>>>>> dc2cf5f693a385ee369b1c4d6b9cb2409c4d2fa2
 });
 
 //----------global listener--------------//
@@ -47,19 +35,11 @@ function buttonEventListener() {
 // --------fetch data from json backend------//
 function fetchPrice(url) {
   fetch(url, {
-<<<<<<< HEAD
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json; charset=utf-8"
       }
     })
-=======
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8"
-    }
-  })
->>>>>>> dc2cf5f693a385ee369b1c4d6b9cb2409c4d2fa2
     .then(response => response.json())
     .then(data => console.log(data));
 }
