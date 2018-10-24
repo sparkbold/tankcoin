@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_10_23_185758) do
+ActiveRecord::Schema.define(version: 2018_10_24_155807) do
 
   create_table "events", force: :cascade do |t|
     t.float "skewness"
@@ -27,6 +27,7 @@ ActiveRecord::Schema.define(version: 2018_10_23_185758) do
     t.integer "game_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "interval"
     t.index ["event_id"], name: "index_game_events_on_event_id"
     t.index ["game_id"], name: "index_game_events_on_game_id"
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Game < ApplicationRecord
   belongs_to :user
   has_many :game_events
@@ -11,7 +13,7 @@ class Game < ApplicationRecord
       event_ids << e.id
     end
     num_of_events.times do
-      GameEvent.create(game_id: self.id, event_id: event_ids.sample)
+      GameEvent.create(game_id: id, event_id: event_ids.sample)
     end
   end
 
@@ -19,15 +21,15 @@ class Game < ApplicationRecord
     game_length = []
     use_events = []
 
-    for i in (1..60).step(1) do
+    (1..60).step(1).each do |i|
       game_length << i
     end
 
-    game_length.length.times do 
+    game_length.length.times do
       use_events << 0
     end
-    
-    game = Game.find(self.id)
+
+    game = Game.find(id)
     game_event_intervals = []
     game.events.each do |game|
       game_event_intervals << game.time_interval
@@ -36,11 +38,12 @@ class Game < ApplicationRecord
     event_times = []
     game_event_intervals.each_with_index do |ei, i|
       current_time = game_length.slice(0, game_length.length - ei).sample
+      GameEvent.update(game.game_events[i].id, interval: current_time)
       game_length.slice!(current_time, ei)
       ei.times do
         use_events.slice!(current_time)
       end
-      ei.times do 
+      ei.times do
         use_events.insert(current_time, i + 1)
       end
       event_times << [current_time, ei]
@@ -48,14 +51,13 @@ class Game < ApplicationRecord
 
     60.times do |i|
       if use_events[i] == 0
-        np = Price.new(game_id: self.id)
+        np = Price.new(game_id: id)
         np.new_price
 
-      else 
-        np = Price.new(game_id: self.id)
-        np.new_price(game.events[use_events[i-1]])
-      end 
+      else
+        np = Price.new(game_id: id)
+        np.new_price(game.events[use_events[i - 1]])
+      end
     end
   end
-
 end
