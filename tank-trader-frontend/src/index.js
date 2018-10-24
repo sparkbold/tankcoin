@@ -3,6 +3,7 @@ const URL = "http://localhost:3000/games";
 document.addEventListener("DOMContentLoaded", function() {
   buttonEventListener();
 });
+
 //----------global listener--------------//
 function buttonEventListener() {
   document.addEventListener("click", event => {
@@ -33,9 +34,14 @@ function buttonEventListener() {
 
 // --------fetch data from json backend------//
 function fetchPrice(url) {
-  fetch(url)
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    }
+  })
     .then(response => response.json())
-    .then(data => render(data.prices));
+    .then(data => console.log(data));
 }
 
 // -----------------render chart------------//
