@@ -6,7 +6,7 @@ class GamesController < ApplicationController
     end
 
     def create
-        new_game = Game.create(user_id: 1)
+        new_game = Game.create(user_id: 5)
         new_game.create_events(4)
         new_game.create_prices
 
