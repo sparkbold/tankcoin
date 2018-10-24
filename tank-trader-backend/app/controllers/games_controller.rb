@@ -1,15 +1,18 @@
+# frozen_string_literal: true
+
 class GamesController < ApplicationController
-    
-    def index
-        new_game = Game.create(user_id: 1)
-        new_game.create_events(4)
-        new_game.create_prices
+  def index
+    games = Game.all
+    render json: { games: games }
+  end
 
-        render json: {prices: new_game.prices, events: new_game.events}
+  def create
+    new_game = Game.create(user_id: 1)
+    new_game.create_events(4)
+    new_game.create_prices
 
-    end
+    render json: { prices: self.new_game.prices, events: self.new_game.events }
+  end
 
-
-
-
+  def show; end
 end

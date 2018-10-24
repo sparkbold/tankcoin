@@ -2,8 +2,17 @@
   text-align: center;
 }
 
-#play-button {
+#buttons {
   text-align: center;
+}
+
+#message {}
+
+img {
+  width: 200px;
+  height: auto;
+  text-align: center;
+  padding-bottom: 50px;
 }
 
 button {
