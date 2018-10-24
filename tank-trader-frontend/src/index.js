@@ -7,21 +7,26 @@ document.addEventListener("DOMContentLoaded", function() {
 //----------global listener--------------//
 function buttonEventListener() {
   document.addEventListener("click", event => {
-    const timeStartGame = new Date().getTime() / 1000;
+    let starTime = 0;
     if (event.target.name === "play-button") {
+      startTime = new Date.getTime();
       let chartContainer = document.getElementById("chart");
       chartContainer.innerHTML = `
       <canvas id="tradeChart" width="800" height="400"></canvas>`;
       fetchPrice(URL); //<------start the game-------
       event.target.disabled = true;
+      document.getElementById("buy-button").disabled = false;
+      document.getElementById("sell-button").disabled = false;
     }
 
     if (event.target.name === "buy-button") {
       let priceIndexData = getData("priceIndex").slice();
-      console.log(priceIndexData);
+      const buyTime = new Date.getTime();
+      const time = buyTime - startTime;
+      // console.log(priceIndexData);
       // buyAction()
       // grab data-point at the time click
-      const timeBuy = new Date().getTime() / 1000;
+      debugger;
     }
 
     if (event.target.name === "sell-button") {
@@ -45,7 +50,18 @@ function fetchPrice(url) {
     })
   })
     .then(response => response.json())
-    .then(data => console.log(data));
+    .then(data => {
+      console.log(data);
+      priceIndex = data.prices.map(el => el.value);
+
+      let price = 100,
+        priceData = [];
+      for (const el of priceIndex) {
+        price = price * (1 + el);
+        priceData.push(price);
+      }
+      return render(priceData);
+    });
 }
 
 // -----------------render chart------------//
@@ -55,7 +71,7 @@ function render(data) {
   for (let i = 0; i < data.length; i++) {
     const el = {
       time: i,
-      price: data[i].value
+      price: data[i]
     };
     dataset.push(el);
   }
@@ -65,7 +81,7 @@ function render(data) {
   let i = 0;
   let myInt = setInterval(() => {
     let newDataSet = dataset.slice(0, i + 1);
-    // console.log(newDataSet);
+    console.log(newDataSet);
     drawChart(newDataSet);
     i++;
 

@@ -18,7 +18,7 @@
   - Sell action will sell 1 stock at current market price (options: 5 stocks/Dump-all)
 - The game duration is 1 minute
 
-- Net value = Cask balance + current stocks at the end-game market value
+- Net value = Cash balance + current stocks at the end-game market value
 
 ## Game logics:
 
@@ -38,12 +38,18 @@
 - render action buttons: play/start, buy/sell
 - render chart: display data with interval 1s for 60s
 - click event on buy/sell button grab current market price:
+
   - if BUY action:
-    - add stock value to portfolio at market price
-    - subtract stock value from cash balance
-    - render NET VALUE = stock value + cash balance
+
+    - add cost basic (current market price) to CB = []
+    - update CV = CB - CB
+    - update PV = stock number (length of CB[]) X market price
+    - update NET = CV + PV
+
   - if SELL action:
-    - subtract current market price from stock value
-    - render NET VALUE = stock value + cash balance
+    - remove number of stock from STOCK = []
+    - subtract cost basic of stock value from cash balance CASH =[]
+    - add number of stocks x market value to MARKETVALUE = []
+
 - Game end when time is over OR net value is less than or equal 0.
 -
