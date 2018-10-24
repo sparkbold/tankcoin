@@ -1,19 +1,3 @@
-<<<<<<< HEAD
-class GamesController < ApplicationController
-    
-    def index
-        games = Game.all
-        render json: {games: games}
-    end
-
-    def create
-        new_game = Game.create(user_id: 5)
-        new_game.create_events(4)
-        new_game.create_prices
-=======
-# frozen_string_literal: true
->>>>>>> master
-
 class GamesController < ApplicationController
   def index
     games = Game.all
@@ -21,12 +5,20 @@ class GamesController < ApplicationController
   end
 
   def create
-    new_game = Game.create(user_id: 1)
-    new_game.create_events(4)
+    game_params = user_params
+    new_game = Game.create(game_params.user_name)
+    new_game.create_events(game_params.num_of_events)
     new_game.create_prices
 
-    render json: { prices: self.new_game.prices, events: self.new_game.events }
+    render json: { prices: new_game.prices, events: new_game.events }
   end
 
   def show; end
+
+  private
+
+  def user_params
+      params.require(:body).permit(:user_name, :num_of_events)
+  end
+
 end
