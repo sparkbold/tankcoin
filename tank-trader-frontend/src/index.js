@@ -1,6 +1,6 @@
 const URL = "http://localhost:3000/games";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function() {
   buttonEventListener();
 });
 
@@ -35,11 +35,15 @@ function buttonEventListener() {
 // --------fetch data from json backend------//
 function fetchPrice(url) {
   fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8"
-      }
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    body: JSON.stringify({
+      user_name: "trung",
+      num_of_events: Math.floor(Math.random() * 5) + 4
     })
+  })
     .then(response => response.json())
     .then(data => console.log(data));
 }
@@ -77,13 +81,15 @@ function drawChart(data) {
 
   let dataset = {
     labels: data.map(el => (el = "")),
-    datasets: [{
-      data: data.map(el => el.price),
-      fillColor: "rgba(220,220,220,0.2)",
-      strokeColor: "rgba(220,220,220,1)",
-      pointColor: "rgba(220,220,220,1)",
-      pointStrokeColor: "#fff"
-    }]
+    datasets: [
+      {
+        data: data.map(el => el.price),
+        fillColor: "rgba(220,220,220,0.2)",
+        strokeColor: "rgba(220,220,220,1)",
+        pointColor: "rgba(220,220,220,1)",
+        pointStrokeColor: "#fff"
+      }
+    ]
   };
   console.log(dataset);
   let myLineChart = new Chart(ctx, {
@@ -91,11 +97,13 @@ function drawChart(data) {
     data: dataset,
     options: {
       scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
           }
-        }]
+        ]
       },
       events: ["click"],
       responsive: true,
