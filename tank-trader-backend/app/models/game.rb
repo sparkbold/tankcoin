@@ -29,13 +29,18 @@ class Game < ApplicationRecord
     
     game = Game.find(self.id)
     game_event_intervals = []
-    game.events.each do |game|
-      game_event_intervals << game.time_interval
+    game.events.each do |event|
+      game_event_intervals << event.time_interval
     end
+
+    # find the GameEvent IDs and update them with the start time
+
+
 
     event_times = []
     game_event_intervals.each_with_index do |ei, i|
       current_time = game_length.slice(0, game_length.length - ei).sample
+      GameEvent.update(game.game_events[i].id, interval: current_time)
       game_length.slice!(current_time, ei)
       ei.times do
         use_events.slice!(current_time)
