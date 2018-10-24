@@ -1,6 +1,6 @@
 const URL = "http://localhost:3000/games";
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   //---------Start Game button---------------//
   document.getElementById("play-button").addEventListener("click", () => {
     let chartContainer = document.getElementById("chart");
@@ -13,7 +13,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // --------fetch data from json backend------//
 function fetchPrice(url) {
-  fetch(url)
+  fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
     .then(response => response.json())
     .then(data => render(data.prices));
 }
@@ -23,7 +28,10 @@ function render(data) {
   //create dataset
   let dataset = [];
   for (let i = 0; i < data.length; i++) {
-    const el = { time: i, price: data[i].value };
+    const el = {
+      time: i,
+      price: data[i].value
+    };
     dataset.push(el);
   }
 
@@ -47,15 +55,13 @@ function drawChart(data) {
 
   let dataset = {
     labels: data.map(el => (el = "")),
-    datasets: [
-      {
-        data: data.map(el => el.price),
-        fillColor: "rgba(220,220,220,0.2)",
-        strokeColor: "rgba(220,220,220,1)",
-        pointColor: "rgba(220,220,220,1)",
-        pointStrokeColor: "#fff"
-      }
-    ]
+    datasets: [{
+      data: data.map(el => el.price),
+      fillColor: "rgba(220,220,220,0.2)",
+      strokeColor: "rgba(220,220,220,1)",
+      pointColor: "rgba(220,220,220,1)",
+      pointStrokeColor: "#fff"
+    }]
   };
   console.log(dataset);
   let myLineChart = new Chart(ctx, {
@@ -63,17 +69,17 @@ function drawChart(data) {
     data: dataset,
     options: {
       scales: {
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true
-            }
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
           }
-        ]
+        }]
       },
       events: ["click"],
       responsive: true,
-      animation: { duration: 0 }
+      animation: {
+        duration: 0
+      }
     }
   });
 }
