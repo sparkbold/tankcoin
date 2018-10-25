@@ -6,13 +6,14 @@ class UsersController < ApplicationController
   end
 
   def create
-    new_user = User.find_or_create_by(params[:user_name])
+    puts params
+    new_user = User.find_or_create_by(user_params)
     render json: new_user
   end
 
   private
 
   def user_params
-    params.permit(:user_name)
+    params.require(:user).permit(:user_name)
   end
 end
