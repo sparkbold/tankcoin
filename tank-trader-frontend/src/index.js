@@ -125,6 +125,7 @@ function fetchPrice(url) {
       console.log(data);
       storeData("eventsData", data.game_events)
       storeData("events", data.events)
+      storeData("game", data.game_id)
 
 
       valueData = []
@@ -208,6 +209,7 @@ function render(data) {
 
       if (i === 59) {
         clearInterval(myInt);
+        endGame();
       }
     },
     1000);
@@ -277,6 +279,7 @@ function storeData(dataName, jsonDataset) {
 
 function getData(dataName) {
   let data = localStorage.getItem(dataName);
+
   return JSON.parse(data);
 }
 // Update chart with new data
@@ -287,3 +290,20 @@ function getData(dataName) {
 //   });
 //   chart.update();
 // }
+
+
+function endGame() {
+
+  console.log(URL + '/' + getData("game"));
+  fetch(URL + '/' + getData("game"), {
+    method: 'PATCH',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      net_value: PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1],
+      end_price: CURRENTPRICE,
+      id: getData("game")
+    })
+  })
+}

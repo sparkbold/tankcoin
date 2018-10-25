@@ -23,7 +23,8 @@ class GamesController < ApplicationController
   def update
     puts params
     gp = game_params
-    Game.update(id: game_params.id, net_value: game_params.net_value, end_price: game_params.end_price)
+    game = Game.find(game_params["id"])
+    game.update(net_value: game_params["net_value"], end_price: game_params["end_price"])
   end
 
   private
