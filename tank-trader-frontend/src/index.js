@@ -243,24 +243,17 @@ function render(data) {
       drawChart(vtx, newMVdataSet);
       updateStats();
 
-      CURRENTPRICE = newDataSet[i].price;
+      i++;
 
-      SECURITIESVALUE = CURRENTPRICE * COSTBASIS.length;
-      PORTFOLIOVALUES.push(SECURITIESVALUE + CASHVALUE);
-      let newMVdataSet = createDataset(PORTFOLIOVALUES);
-      // let newMVdataSet = marketValue.slice(0, i + 1);
-
-      drawChart(ctx, newDataSet);
-      drawChart(vtx, newMVdataSet);
-      updateStats();
+      let eventData = getData("eventsData");
+      let events = getData("events");
+      let eventStartTime = eventData.map(event => {
+        return event.interval;
+      });
 
       let alertDiv = document.getElementById('event-message')
       if (eventStartTime.includes(i)) {
-        alertDiv.innerHTML =
-          `<h1>${events[eventStartTime.indexOf(i)].description}</h1>`
-        setTimeout(() => {
-          alertDiv.innerHTML = ""
-        }, 2000)
+        alert(events[eventStartTime.indexOf(i)].description)
 
       }
 
@@ -309,10 +302,10 @@ function drawChart(tag, data) {
 function updateStats() {
   document.getElementById("stats").innerHTML = `
     <div class="mdl-color--teal-300">
-    <h4>Cash Value: $${CASHVALUE.toFixed(2)}
-    Securities Value: $${SECURITIESVALUE.toFixed(2)}
+    <h4>Cash Value: $${CASHVALUE.toFixed(2)} | 
+    Securities Value: $${SECURITIESVALUE.toFixed(2)} | 
     Total Value: $${(CASHVALUE + SECURITIESVALUE).toFixed(2)}
-    <h4>Shares: ${COSTBASIS.length}
+    <h4>Shares: ${COSTBASIS.length} | 
     Profit/Loss: $${(CASHVALUE + SECURITIESVALUE - 1000).toFixed(2)}</h4>
     </div>
   `;
