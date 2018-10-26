@@ -7,6 +7,7 @@
 }
 
 .mdl-layout__content {
+  vertical-align: center;
   padding: 24px;
   flex: none;
   margin: auto;
@@ -17,7 +18,7 @@ a:hover {
 }
 
 .mdl-card {
-  background: transparent;
+  color: teal;
 }
 
 .mdl-card__actions {
@@ -34,7 +35,7 @@ a:hover {
 }
 
 #space {
-  padding-top: 240px;
+  padding-top: 140px;
 }
 
 .logo-font {

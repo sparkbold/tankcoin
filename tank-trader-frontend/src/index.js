@@ -291,16 +291,16 @@ function drawChart(tag, data) {
 function updateStats() {
   document.getElementById("stats").innerHTML = `
     <div class="mdl-color--teal-300">
-    <h4>Cash Value: <strong>$${CASHVALUE.toFixed(
-      2
-    )}</strong> |  Securities Value: <strong>$${SECURITIESVALUE.toFixed(
-    2
-  )}</strong> </h4>
-    <h4>Total Value: $${
+    <h4>Net Value: <strong class="mdl-color--pink-300">$${
       PORTFOLIOVALUES.length > 0
         ? PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1].toFixed(2)
         : CASHVALUE.toFixed(2)
-    } | Shares: ${COSTBASIS.length} | Profit/Loss: $${
+    }</strong> | Cash Value: <strong>$${CASHVALUE.toFixed(
+    2
+  )}</strong> |  Securities Value: <strong>$${SECURITIESVALUE.toFixed(
+    2
+  )}</strong> </h4>
+    <h4> | Shares: ${COSTBASIS.length} | Profit/Loss: $${
     PORTFOLIOVALUES.length > 0
       ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000).toFixed(2)
       : (CASHVALUE - 1000).toFixed(2)
@@ -394,9 +394,6 @@ function loadGame() {
       <div class="logo-font title-font">Tank Co.</div>
       <div id="stats" class="mdl-card-stats mdl-cell--12-col mdl-shadow--3dp">
       </div>
-      <div id="title">
-        
-      </div>
       <div id="buttons">
         <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" name="play-button">START</button>
         <button class="mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" id="buy-button" name="buy-button" disabled>BUY</button>
@@ -421,7 +418,7 @@ function loginForm() {
       <main class="mdl-layout__content">
         <div id="space"/>
         <div class="mdl-card mdl-shadow--6dp">
-          <div class="mdl-card__title mdl-color--primary mdl-color-text--white relative">
+          <div class="mdl-card__title mdl-color--teal mdl-color-text--white relative">
             <h2 class="mdl-card__title-text">Tank Co.</h2>
           </div>
           <div class="mdl-card__supporting-text">
@@ -434,7 +431,7 @@ function loginForm() {
             </form>
           </div>
           <div class="mdl-card__actions mdl-card--border">
-            <button name="login" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white">Log in</button>
+            <button name="login" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-color--teal mdl-js-button mdl-color-text--white">Log in</button>
             <button name="create" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white">Sign up</button>
           </div>
         </div>
