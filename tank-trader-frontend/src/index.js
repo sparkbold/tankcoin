@@ -11,11 +11,11 @@ PORTFOLIOVALUES = [];
 PRICES = [];
 CURRENTUSER = "";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function() {
   fetchUsers();
-  addUserForm();
+  loginForm();
+  // addUserForm();
   buttonEventListener();
-  updateStats();
 });
 // --------------GET ALL CURRENT USERS-----------//
 function fetchUsers() {
@@ -27,21 +27,20 @@ function fetchUsers() {
 function buttonEventListener() {
   document.addEventListener("click", event => {
     let allUsers = getData("allUsers").map(el => el.user_name);
+
     // debugger;
     if (event.target.name === "login") {
       event.preventDefault();
-      console.log(event.target.name);
-      let username = event.target.form.elements.username.value.toLowerCase();
-
-      if (username === "" || username === " ") {
+      // debugger;
+      console.log(event.target.form);
+      let username = document.getElementById("username").value.toLowerCase();
+      if (username === "" || username === " " || username.length < 5) {
         alert("Please type correct username: no space or empty");
       } else if (allUsers.includes(username)) {
         CURRENTUSER = username;
-        document.getElementById("stats").style.display = "block";
-        document.getElementById("buttons").style.display = "block";
+        loadGame();
         updateStats();
         console.log("found you!!", CURRENTUSER);
-        document.getElementById("user-form").style.display = "none";
       } else {
         alert("User is not exist! Please create user!");
       }
@@ -50,17 +49,14 @@ function buttonEventListener() {
     if (event.target.name === "create") {
       event.preventDefault();
       console.log(event.target.name);
-      let username = event.target.form.elements.username.value.toLowerCase();
-
-      if (username === "" || username === " ") {
+      let username = document.getElementById("username").value.toLowerCase();
+      if (username === "" || username === " " || username.length < 5) {
         alert("Please type correct username: no space or empty");
       } else if (allUsers.includes(username)) {
         alert("Username is already exist. Try again!");
       } else {
         CURRENTUSER = username.toLowerCase();
-        document.getElementById("stats").style.display = "block";
-        document.getElementById("buttons").style.display = "block";
-        document.getElementById("user-form").style.display = "none";
+        loadGame();
         updateStats();
         fetch(usersURL, {
           method: "POST",
@@ -151,15 +147,15 @@ function buttonEventListener() {
 // --------fetch data from json backend------//
 function fetchPrice(url, username) {
   fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8"
-      },
-      body: JSON.stringify({
-        user_name: username,
-        num_of_events: Math.floor(Math.random() * 5) + 4
-      })
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    body: JSON.stringify({
+      user_name: username,
+      num_of_events: Math.floor(Math.random() * 5) + 4
     })
+  })
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -167,14 +163,13 @@ function fetchPrice(url, username) {
       storeData("events", data.events);
       storeData("game", data.game_id);
 
-
-      valueData = []
+      valueData = [];
       priceIndex = data.prices.map(el => el.value);
-      priceIndex.unshift(0)
-      PRICES = priceIndex.slice()
-      let price = 100
+      priceIndex.unshift(0);
+      PRICES = priceIndex.slice();
+      let price = 100;
       priceData = [];
-      PORTFOLIOVALUES.push(CASHVALUE)
+      PORTFOLIOVALUES.push(CASHVALUE);
       for (const el of priceIndex) {
         price = price * (1 + el);
         priceData.push(price);
@@ -207,64 +202,68 @@ function render(data) {
   //render chart
   let i = 0;
   let myInt = setInterval(() => {
-      TIMEINTERVAL = i;
-      let newDataSet = dataset.slice(0, i + 1);
-      console.log(newDataSet);
+    TIMEINTERVAL = i;
+    let newDataSet = dataset.slice(0, i + 1);
+    console.log(newDataSet);
 
-      CURRENTPRICE = newDataSet[i].price;
+    CURRENTPRICE = newDataSet[i].price;
 
-      SECURITIESVALUE = CURRENTPRICE * COSTBASIS.length;
-      PORTFOLIOVALUES.push(SECURITIESVALUE + CASHVALUE);
-      let newMVdataSet = createDataset(PORTFOLIOVALUES);
-      // let newMVdataSet = marketValue.slice(0, i + 1);
+    SECURITIESVALUE = CURRENTPRICE * COSTBASIS.length;
+    PORTFOLIOVALUES.push(SECURITIESVALUE + CASHVALUE);
+    let newMVdataSet = createDataset(PORTFOLIOVALUES);
+    // let newMVdataSet = marketValue.slice(0, i + 1);
 
+    drawChart(ctx, newDataSet);
+    drawChart(vtx, newMVdataSet);
+    updateStats();
 
-      drawChart(ctx, newDataSet);
-      drawChart(vtx, newMVdataSet);
-      updateStats();
+    i++;
 
-      i++;
+    let eventData = getData("eventsData");
+    let events = getData("events");
+    let eventStartTime = eventData.map(event => {
+      return event.interval;
+    });
 
-      let eventData = getData("eventsData")
-      let events = getData("events")
-      let eventStartTime = eventData.map((event) => {
-        return event.interval
-      });
+    let alertDiv = document.getElementById("event-message");
+    if (eventStartTime.includes(i)) {
+      alertDiv.innerHTML = `<h1>${
+        events[eventStartTime.indexOf(i)].description
+      }</h1>`;
+      console.log(
+        CURRENTPRICE,
+        events[eventStartTime.indexOf(i)].description,
+        i,
+        PRICES[i]
+      );
+      setTimeout(() => {
+        alertDiv.innerHTML = "";
+      }, 2000);
+    } else {
+      console.log(CURRENTPRICE, i, PRICES[i]);
+    }
 
-
-      let alertDiv = document.getElementById('event-message')
-      if (eventStartTime.includes(i)) {
-        alertDiv.innerHTML =
-          `<h1>${events[eventStartTime.indexOf(i)].description}</h1>`
-        console.log(CURRENTPRICE, events[eventStartTime.indexOf(i)].description, i, PRICES[i]);
-        setTimeout(() => {
-          alertDiv.innerHTML = ""
-        }, 2000)
-
-      } else {
-        console.log(CURRENTPRICE, i, PRICES[i]);
-
-      }
-
-      if (i === 60) {
-        clearInterval(myInt);
-        postGame();
-      }
-    },
-    1000);
+    if (i === 60) {
+      clearInterval(myInt);
+      postGame();
+    }
+  }, 1000);
 }
 
 // ---------------draw Chart---------------------//
 function drawChart(tag, data) {
   let dataset = {
     labels: data.map(el => (el = "")),
-    datasets: [{
-      data: data.map(el => el.price),
-      fillColor: "rgba(220,220,220,0.2)",
-      strokeColor: "rgba(220,220,220,1)",
-      pointColor: "rgba(220,220,220,1)",
-      pointStrokeColor: "#fff"
-    }]
+    datasets: [
+      {
+        label: "$",
+        data: data.map(el => el.price),
+        fillColor: "rgba(220,220,220,0.2)",
+        strokeColor: "rgba(220,220,220,1)",
+        pointColor: "rgba(220,220,220,1)",
+        pointStrokeColor: "#fff"
+      }
+    ]
   };
 
   let myLineChart = new Chart(tag, {
@@ -272,11 +271,13 @@ function drawChart(tag, data) {
     data: dataset,
     options: {
       scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
           }
-        }]
+        ]
       },
       events: ["click"],
       responsive: true,
@@ -289,40 +290,23 @@ function drawChart(tag, data) {
 //----------create Stats---------------//
 function updateStats() {
   document.getElementById("stats").innerHTML = `
-    <div>
-    <h2>Cash Value: $${CASHVALUE.toFixed(2)}</h2>
-    <h2>Securities Value: $${SECURITIESVALUE.toFixed(2)}</h2>
-    <h2>Total Value: $${PORTFOLIOVALUES.length > 0 ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1]).toFixed(2) : CASHVALUE.toFixed(2)}</h2>
-    <h2>Shares: ${COSTBASIS.length}</h2>
-    <h2>Profit/Loss: $${PORTFOLIOVALUES.length > 0 ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000).toFixed(2) : (CASHVALUE - 1000).toFixed(2)}</h2>
+    <div class="mdl-color--teal-300">
+    <h4>Cash Value: <strong>$${CASHVALUE.toFixed(
+      2
+    )}</strong> |  Securities Value: <strong>$${SECURITIESVALUE.toFixed(
+    2
+  )}</strong> </h4>
+    <h4>Total Value: $${
+      PORTFOLIOVALUES.length > 0
+        ? PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1].toFixed(2)
+        : CASHVALUE.toFixed(2)
+    } | Shares: ${COSTBASIS.length} | Profit/Loss: $${
+    PORTFOLIOVALUES.length > 0
+      ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000).toFixed(2)
+      : (CASHVALUE - 1000).toFixed(2)
+  } </h4>
     </div>
   `;
-}
-
-//----------create BUY/SELL---------------//
-
-//----------create user--------------//
-function addUserForm() {
-  // create a new div element
-  var userForm = document.createElement("div");
-  // set atribute
-  userForm.setAttribute("id", "user-form");
-  // and give it some content
-  userForm.innerHTML = `
-      <form action="" method="get" class="form-login">
-        <div class="form-login">
-          <label for="name">Enter your username: </label><br>
-          <input type="text" name="username" id="username" required>
-        </div>
-        <div class="form-login">
-          <input type="submit" name="login" value="LOGIN">
-          <input type="submit" name="create" value="CREATE">
-        </div>
-      </form>
-  `;
-  // add the newly created element and its content into the DOM
-  let currentDiv = document.getElementById("buttons");
-  document.body.insertBefore(userForm, currentDiv);
 }
 
 //--------save game-------------//
@@ -346,12 +330,10 @@ function getData(dataName) {
 //   chart.update();
 // }
 
-
 function postGame() {
-
   //Update the content in the data base to include the ending value of your portfolio
-  fetch(gamesURL + '/' + getData("game"), {
-    method: 'PATCH',
+  fetch(gamesURL + "/" + getData("game"), {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json"
     },
@@ -360,34 +342,29 @@ function postGame() {
       end_price: CURRENTPRICE,
       id: getData("game")
     })
-  }).then(() => endGame())
-
-
-
+  }).then(() => endGame());
 }
 
 function endGame() {
-  //Change the buttons to the reset button and add an 
+  //Change the buttons to the reset button and add an
   //event listener that reloads the page when rest is clicked
-  console.log('fired');
-
+  console.log("fired");
 
   showLeaderBoard();
-  let buttons = document.getElementById('buttons')
+  let buttons = document.getElementById("buttons");
 
   buttons.innerHTML = `
     <button id="reset-button" name="reset-button">RESET</button>
-  `
-  document.getElementById('reset-button').addEventListener('click', () => {
-    location.reload(true)
-  })
+  `;
+  document.getElementById("reset-button").addEventListener("click", () => {
+    location.reload(true);
+  });
 
   //Add stats and leaderboard
-
 }
 
 function showLeaderBoard() {
-  console.log('fired');
+  console.log("fired");
 
   //show the stats
   //Percent return of the stock
@@ -395,16 +372,99 @@ function showLeaderBoard() {
   //if you are within 5% of the stock you did alright, less than 5% you did poorly, greater than 5% you did well
   console.log(CURRENTINDEX);
 
-  document.getElementById('event-message').innerHTML = `
+  document.getElementById("event-message").innerHTML = `
     <ul>
-      <li>TANK's return for the period was ${((CURRENTINDEX - 100)).toFixed(2)}%</li>
-      <li>Your return for the period was ${((PORTFOLIOVALUES[PORTFOLIOVALUES.length-1] - 1000) / 1000).toFixed(2)}%</li>
+      <li>TANK's return for the period was ${(CURRENTINDEX - 100).toFixed(
+        2
+      )}%</li>
+      <li>Your return for the period was ${(
+        (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000) /
+        1000
+      ).toFixed(2)}%</li>
     </ul>
-  `
-
+  `;
 
   //Number of transactions
   //get the top 10 games by value
-
-
 }
+
+//----------Material body---------------//
+function loadGame() {
+  document.body.innerHTML = `
+      <div class="logo-font title-font">Tank Co.</div>
+      <div id="stats" class="mdl-card-stats mdl-cell--12-col mdl-shadow--3dp">
+      </div>
+      <div id="title">
+        
+      </div>
+      <div id="buttons">
+        <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" name="play-button">START</button>
+        <button class="mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" id="buy-button" name="buy-button" disabled>BUY</button>
+        <button class="mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" id="buy-all" name="buy-all-button" disabled>BUY MAX</button>
+        <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" id="sell-button" name="sell-button" disabled>SELL</button>
+        <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" id="sell-all" name="sell-all-button" disabled>LIQUIDATE</button>
+      </div>
+      <div id="event-message"></div>
+      <div id="price-chart" class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col"></div>
+      <div id="value-chart" class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col"></div>
+  `;
+}
+//----------Material Login---------------//
+function loginForm() {
+  // // create a new div element
+  // var userForm = document.createElement("div");
+  // // set atribute
+  // userForm.setAttribute("id", "user-form");
+  // // and give it some content
+  document.body.innerHTML = `
+    <div class="mdl-layout mdl-js-layout mdl-color--grey-100">
+      <main class="mdl-layout__content">
+        <div id="space"/>
+        <div class="mdl-card mdl-shadow--6dp">
+          <div class="mdl-card__title mdl-color--primary mdl-color-text--white relative">
+            <h2 class="mdl-card__title-text">Tank Co.</h2>
+          </div>
+          <div class="mdl-card__supporting-text">
+            <form id="user-form" action="#">
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" pattern="^(?=.{5,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$" id="username" />
+                <label class="mdl-textfield__label" for="username">Username</label>
+                <span class="mdl-textfield__error">username at least 5 characters and no space!</span>
+              </div>
+            </form>
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <button name="login" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white">Log in</button>
+            <button name="create" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white">Sign up</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  `;
+  // add the newly created element and its content into the DOM
+  // let currentDiv = document.getElementById("buttons");
+  // document.body.insertBefore(userForm, currentDiv);
+}
+//----------create user--------------//
+// function addUserForm() {
+//   // create a new div element
+//   var userForm = document.createElement("div");
+//   // set atribute
+//   userForm.setAttribute("id", "user-form");
+//   // and give it some content
+//   userForm.innerHTML = `
+//       <form action="" method="get" class="form-login">
+//         <div class="form-login">
+//           <label for="name">Enter your username: </label><br>
+//           <input type="text" name="username" id="username" required>
+//         </div>
+//         <div class="form-login">
+//           <input type="submit" name="login" value="LOGIN">
+//           <input type="submit" name="create" value="CREATE">
+//         </div>
+//       </form>
+//   `;
+//   // add the newly created element and its content into the DOM
+//   let currentDiv = document.getElementById("buttons");
+//   document.body.insertBefore(userForm, currentDiv);
+// }
