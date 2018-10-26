@@ -32,6 +32,14 @@ class GamesController < ApplicationController
     User.find_or_create_by(user_name: user)
   end
 
+  def top_10
+    top10games = Game.order('net_value DESC').limit(10)
+    games = top10games.map do |game|
+      {user_name: User.find(game.user_id).user_name, net_value: game.net_value}
+    end
+    render json: games
+  end
+
   private
 
   def user_params
@@ -41,4 +49,6 @@ class GamesController < ApplicationController
   def game_params
     params.require(:game).permit(:net_value, :end_price, :id)
   end
+
+
 end
