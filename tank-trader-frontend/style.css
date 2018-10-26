@@ -1,11 +1,75 @@
-#title {
+.mdl-layout {
+  align-items: center;
+  justify-content: center;
+  /* background: -webkit-radial-gradient(white, darkgray); */
+  background-image: url("img/fabio-633881-unsplash.jpg");
+  background-size: cover;
+}
+
+.mdl-layout__content {
+  vertical-align: center;
+  padding: 24px;
+  flex: none;
+  margin: auto;
+}
+
+a:hover {
+  cursor: pointer;
+}
+
+.mdl-card {
+  color: teal;
+}
+
+.mdl-card__actions {
   text-align: center;
+
+}
+
+#stats,
+.mdl-card-stats {
+  text-align: center;
+  color: white;
+  /* height: 50px !important; */
+  box-shadow: #767777;
+}
+
+#space {
+  padding-top: 140px;
+}
+
+.logo-font {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  line-height: 1;
+  color: #767777;
+  font-weight: 500;
+}
+
+.title-font {
+  font-size: 60px;
+  padding-top: 60px;
+  text-align: center;
+  padding-bottom: 10px;
 }
 
 #buttons {
-  display: none;
+  padding: 30px;
   text-align: center;
 }
+
+#price-chart {
+  float: left;
+}
+
+#value-chart {
+  float: right;
+}
+
+/* #title {
+  text-align: center;
+}
+
+
 
 #message {
   float: right;
@@ -30,7 +94,7 @@ button {
   margin: 4px 2px;
   -webkit-transition-duration: 0.4s;
   /* Safari */
-  transition-duration: 0.4s;
+/* transition-duration: 0.4s;
   cursor: pointer;
 }
 
@@ -54,4 +118,4 @@ button[disabled] {
 #user-form .form-login {
   text-align: center;
   padding: 15px;
-}
+} */

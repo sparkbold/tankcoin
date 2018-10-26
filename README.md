@@ -2,13 +2,14 @@
 
 ## Deliverble:
 
-- User can login with username OR enter it at the end of the game on leaderboard//
-- User can create game and do transaction actions (buy/sell)
-- User can see the game leaderboard at the end of the game //
+- User can login/create with username //DONE
+- User can create game and do transaction actions (buy/sell) //DONE
+- User can see the game leaderboard at the end of the game //NOT YET
+- User can see analytics at the end of the game //NOT YET
 
 ## Game instruction:
 
-- The goal of the game is to amass the highest possible net value
+- The goal of the game is to amass the highest possible net value by trading stock/security/currency
 - create user or login
 - click start to run the game
 - user has $10,000 begining cash balance
