@@ -15,7 +15,7 @@ TRANSACTIONCOUNTER = 0;
 SHARESBOUGHT = 0;
 SHARESSOLD = 0;
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function() {
   fetchUsers();
   loginForm();
   // addUserForm();
@@ -102,7 +102,7 @@ function buttonEventListener() {
         SECURITIESVALUE = COSTBASIS.length * CURRENTPRICE;
         console.log(CURRENTPRICE);
         TRANSACTIONCOUNTER++;
-        SHARESBOUGHT++
+        SHARESBOUGHT++;
         updateStats();
       } else {
         console.log("You dont have enough cash");
@@ -116,7 +116,7 @@ function buttonEventListener() {
       // buyAction()
       if (CASHVALUE > CURRENTPRICE) {
         let shares = Math.floor(CASHVALUE / CURRENTPRICE);
-        SHARESBOUGHT += shares
+        SHARESBOUGHT += shares;
         for (let i = 1; i <= shares; i++) {
           COSTBASIS.push(CURRENTPRICE);
         }
@@ -124,7 +124,6 @@ function buttonEventListener() {
         CASHVALUE -= CURRENTPRICE * shares;
         SECURITIESVALUE = COSTBASIS.length * CURRENTPRICE;
         TRANSACTIONCOUNTER++;
-
 
         console.log(COSTBASIS, Math.round(CASHVALUE));
         updateStats();
@@ -170,15 +169,15 @@ function buttonEventListener() {
 // --------fetch data from json backend------//
 function fetchPrice(url, username) {
   fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8"
-      },
-      body: JSON.stringify({
-        user_name: username,
-        num_of_events: Math.floor(Math.random() * 5) + 4
-      })
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    body: JSON.stringify({
+      user_name: username,
+      num_of_events: Math.floor(Math.random() * 5) + 4
     })
+  })
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -226,57 +225,55 @@ function render(data) {
   let i = 0;
 
   let myInt = setInterval(() => {
-      TIMEINTERVAL = i;
-      let newDataSet = dataset.slice(0, i + 1);
-      console.log(MYINDEX * (1 + priceIndex[i + 1]), priceIndex[i + 1]);
+    TIMEINTERVAL = i;
+    let newDataSet = dataset.slice(0, i + 1);
+    console.log(MYINDEX * (1 + priceIndex[i + 1]), priceIndex[i + 1]);
 
+    CURRENTPRICE = newDataSet[i].price;
 
-      CURRENTPRICE = newDataSet[i].price;
+    SECURITIESVALUE = CURRENTPRICE * COSTBASIS.length;
+    PORTFOLIOVALUES.push(SECURITIESVALUE + CASHVALUE);
+    let newMVdataSet = createDataset(PORTFOLIOVALUES);
+    // let newMVdataSet = marketValue.slice(0, i + 1);
 
-      SECURITIESVALUE = CURRENTPRICE * COSTBASIS.length;
-      PORTFOLIOVALUES.push(SECURITIESVALUE + CASHVALUE);
-      let newMVdataSet = createDataset(PORTFOLIOVALUES);
-      // let newMVdataSet = marketValue.slice(0, i + 1);
+    drawChart(ctx, newDataSet);
+    drawChart(vtx, newMVdataSet);
+    updateStats();
 
+    i++;
 
-      drawChart(ctx, newDataSet);
-      drawChart(vtx, newMVdataSet);
-      updateStats();
+    let eventData = getData("eventsData");
+    let events = getData("events");
+    let eventStartTime = eventData.map(event => {
+      return event.interval;
+    });
 
-      i++;
+    let alertDiv = document.getElementById("event-message");
+    if (eventStartTime.includes(i)) {
+      alert(events[eventStartTime.indexOf(i)].description);
+    }
 
-      let eventData = getData("eventsData");
-      let events = getData("events");
-      let eventStartTime = eventData.map(event => {
-        return event.interval;
-      });
-
-      let alertDiv = document.getElementById('event-message')
-      if (eventStartTime.includes(i)) {
-        alert(events[eventStartTime.indexOf(i)].description)
-
-      }
-
-      if (i === 61) {
-        clearInterval(myInt);
-        postGame();
-      }
-    },
-    1000);
+    if (i === 61) {
+      clearInterval(myInt);
+      postGame();
+    }
+  }, 1000);
 }
 
 // ---------------draw Chart---------------------//
 function drawChart(tag, data) {
   let dataset = {
     labels: data.map(el => (el = "")),
-    datasets: [{
-      label: "$",
-      data: data.map(el => el.price),
-      fillColor: "rgba(220,220,220,0.2)",
-      strokeColor: "rgba(220,220,220,1)",
-      pointColor: "rgba(220,220,220,1)",
-      pointStrokeColor: "#fff"
-    }]
+    datasets: [
+      {
+        label: "$",
+        data: data.map(el => el.price),
+        fillColor: "rgba(220,220,220,0.2)",
+        strokeColor: "rgba(220,220,220,1)",
+        pointColor: "rgba(220,220,220,1)",
+        pointStrokeColor: "#fff"
+      }
+    ]
   };
 
   let myLineChart = new Chart(tag, {
@@ -284,11 +281,13 @@ function drawChart(tag, data) {
     data: dataset,
     options: {
       scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
           }
-        }]
+        ]
       },
       events: ["click"],
       responsive: true,
@@ -350,67 +349,133 @@ function postGame() {
 function endGame() {
   //Change the buttons to the reset button and add an
   //event listener that reloads the page when rest is clicked
-  console.log('fired');
-  let buttons = document.getElementById('buttons')
+  console.log("fired");
 
-  buttons.innerHTML = `
-    <button id="reset-button" name="reset-button">RESET</button>
-  `;
-  document.getElementById("reset-button").addEventListener("click", () => {
-    location.reload(true);
-  });
-
-  fetch(gamesURL + '/top10').then(resp => resp.json()).then(showLeaderBoard)
-
-
-
+  fetch(gamesURL + "/top10")
+    .then(resp => resp.json())
+    .then(showLeaderBoard);
 
   //Add stats and leaderboard
 }
 
 function showLeaderBoard(data) {
-
   //show the stats
   //Percent return of the stock
   //Percet return of your portfolio
   //if you are within 5% of the stock you did alright, less than 5% you did poorly, greater than 5% you did well
-  let pD = ((PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000) / 10 - (CURRENTPRICE - 100))
-  let message = ""
+  let pD =
+    (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000) / 10 -
+    (CURRENTPRICE - 100);
+  let message = "";
 
   switch (true) {
-    case (pD > 0.2):
-      message = "You can hang with the big boys!!!"
+    case pD > 0.2:
+      message = "You can hang with the big boys!!!";
       break;
-    case (pD > .0 && pD <= 0.2):
-      message = "Not bad. Now try it with the real thing"
+    case pD > 0.0 && pD <= 0.2:
+      message = "Not bad. Now try it with the real thing";
       break;
-    case (pD > -0.1 && pD <= 0.0):
-      message = "Let's not go making any huge bets anytime soon"
+    case pD > -0.1 && pD <= 0.0:
+      message = "Let's not go making any huge bets anytime soon";
       break;
-    case (pD > -0.3 && pD <= -0.1):
-      message = "Definitely don't quit your day job."
+    case pD > -0.3 && pD <= -0.1:
+      message = "Definitely don't quit your day job.";
       break;
-    case (pD <= -0.3):
-      message = "Do not pass go. Do not collect $200. Abort all hopes of making money in Crypto"
+    case pD <= -0.3:
+      message =
+        "Do not pass go. Do not collect $200. Abort all hopes of making money in Crypto";
       break;
     default:
       break;
   }
+  document.body.innerHTML = `
+  <div class="mdl-layout mdl-js-layout mdl-color--grey-100">
+      <main class="mdl-layout__content">
+      <div class="logo-font title-font">Market Closed</div>
+      <div id="message" class="mdl-card-stats mdl-color--teal-300 mdl-cell--12-col mdl-shadow--3dp"><h4>Hey, <strong>${CURRENTUSER}</strong>, ${message}</h4>
+      </div>
+      <div id="buttons">
+        <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" id="reset-button">RESET</button>
+      </div>
+      <div class="mdl-grid">
+      <div id="leaderboard" class="mdl-cell mdl-cell--6-col"></div>
+      <div id="results" class="mdl-cell mdl-cell--6-col"></div>
+      <div id="price-chart" class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col"></div>
+      <div id="value-chart" class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col"></div>
+      </div>
+      </main>
+  </div>
 
+  `;
 
-  document.getElementById('event-message').innerHTML = `
-    <h2>${message}</h2>
-    <ul>
-      <li>TANK's return for the period was ${((CURRENTPRICE - 100)).toFixed(2)}%</li>
-      <li>Your return for the period was ${((PORTFOLIOVALUES[PORTFOLIOVALUES.length-1] - 1000)/10).toFixed(2)}%</li>
-      <li>You made ${TRANSACTIONCOUNTER} transaction${TRANSACTIONCOUNTER > 1 ? "s": ""}</li>
-      <li>You bought ${SHARESBOUGHT} TANK coin${SHARESBOUGHT > 1 ? "s": ""} and sold ${SHARESSOLD}</li>
-    </ul>
-    <h2>Leaderboard:</h2>
-    <ul>${data.map(game => {
-      return `<li>${game.user_name} - $${game.net_value.toFixed(2)}</li>`
-      }).join('')}
-    </ul>
+  document.getElementById("reset-button").addEventListener("click", () => {
+    location.reload(true);
+  });
+
+  document.getElementById("leaderboard").innerHTML = `
+      <div class="mdl-card mdl-shadow--6dp">
+          <div class="mdl-card__title mdl-color--teal mdl-color-text--white relative">
+            <h2 class="mdl-card__title-text">Leaderboard</h2>
+          </div>
+          <div class="mdl-card__supporting-text">
+            <ul class="demo-list-icon mdl-list">${data
+              .map(game => {
+                return `<li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">person</i>${
+                  game.user_name
+                } - $${game.net_value.toFixed(2)}</span></li>`;
+              })
+              .join("")}
+            </ul>
+          </div>
+      </div>
+  `;
+
+  document.getElementById("results").innerHTML = `
+        <div class="mdl-card mdl-shadow--6dp">
+          <div class="mdl-card__title mdl-color--teal mdl-color-text--white relative">
+            <h2 class="mdl-card__title-text">Results</h2>
+          </div>
+          <div class="mdl-card__supporting-text">
+            <ul class="demo-list-icon mdl-list">
+
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>Cash Value: $${CASHVALUE.toFixed(
+                2
+              )}</span></li>
+
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>Securities Value: $${SECURITIESVALUE.toFixed(
+                2
+              )}</span></li> 
+
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>Total Value: $${(
+                CASHVALUE + SECURITIESVALUE
+              ).toFixed(2)}</span></li>
+              
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>Shares: ${
+                COSTBASIS.length
+              }</span></li>
+
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>Profit/Loss: $${(
+                CASHVALUE +
+                SECURITIESVALUE -
+                1000
+              ).toFixed(2)}</span></li>
+
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>TANK's return for the period was ${(
+                CURRENTPRICE - 100
+              ).toFixed(2)}%</span></li>
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>Your return for the period was ${(
+                (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000) /
+                10
+              ).toFixed(2)}%</span></li>
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>You made ${TRANSACTIONCOUNTER} transaction${
+    TRANSACTIONCOUNTER > 1 ? "s" : ""
+  }</span></li>
+              <li class="mdl-list__item"><span class="mdl-list__item-primary-content"><i class="material-icons mdl-list__item-icon">star</i>You bought ${SHARESBOUGHT} TANK coin${
+    SHARESBOUGHT > 1 ? "s" : ""
+  } and sold ${SHARESSOLD}</span></li>
+            </ul>
+          </div>
+      </div>
   `;
 
   //Number of transactions
@@ -420,19 +485,23 @@ function showLeaderBoard(data) {
 //----------Material body---------------//
 function loadGame() {
   document.body.innerHTML = `
-      <div class="logo-font title-font">Tank Co.</div>
-      <div id="stats" class="mdl-card-stats mdl-cell--12-col mdl-shadow--3dp">
-      </div>
-      <div id="buttons">
-        <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" name="play-button">START</button>
-        <button class="mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" id="buy-button" name="buy-button" disabled>BUY</button>
-        <button class="mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" id="buy-all" name="buy-all-button" disabled>BUY MAX</button>
-        <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" id="sell-button" name="sell-button" disabled>SELL</button>
-        <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" id="sell-all" name="sell-all-button" disabled>LIQUIDATE</button>
-      </div>
-      <div id="event-message"></div>
-      <div id="price-chart" class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col"></div>
-      <div id="value-chart" class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col"></div>
+  <div class="mdl-layout mdl-js-layout mdl-color--grey-100">
+      <main class="mdl-layout__content">
+        <div class="logo-font title-font">Tank Co.</div>
+        <div id="stats" class="mdl-card-stats mdl-cell--12-col mdl-shadow--3dp">
+        </div>
+        <div id="buttons">
+          <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" name="play-button">START</button>
+          <button class="mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" id="buy-button" name="buy-button" disabled>BUY</button>
+          <button class="mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" id="buy-all" name="buy-all-button" disabled>BUY MAX</button>
+          <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" id="sell-button" name="sell-button" disabled>SELL</button>
+          <button class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-color-text--white" id="sell-all" name="sell-all-button" disabled>LIQUIDATE</button>
+        </div>
+        <div id="event-message"></div>
+        <div id="price-chart" class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col"></div>
+        <div id="value-chart" class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col"></div>
+      </main>
+  </div>
   `;
 }
 //----------Material Login---------------//
