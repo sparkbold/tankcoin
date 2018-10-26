@@ -246,18 +246,6 @@ function render(data) {
 
       }
 
-
-
-      let alertDiv = document.getElementById("event-message");
-      if (eventStartTime.includes(i)) {
-        alertDiv.innerHTML = `<h1>${
-        events[eventStartTime.indexOf(i)].description
-      }</h1>`;
-        setTimeout(() => {
-          alertDiv.innerHTML = "";
-        }, 2000);
-      }
-
       if (i === 60) {
         clearInterval(myInt);
         postGame();
@@ -362,7 +350,7 @@ function getData(dataName) {
 function postGame() {
 
   //Update the content in the data base to include the ending value of your portfolio
-  fetch(URL + '/' + getData("game"), {
+  fetch(gamesURL + '/' + getData("game"), {
     method: 'PATCH',
     headers: {
       "Content-Type": "application/json"
