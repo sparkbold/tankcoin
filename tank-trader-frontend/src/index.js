@@ -15,7 +15,7 @@ TRANSACTIONCOUNTER = 0;
 SHARESBOUGHT = 0;
 SHARESSOLD = 0;
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   fetchUsers();
   loginForm();
   // addUserForm();
@@ -170,15 +170,15 @@ function buttonEventListener() {
 // --------fetch data from json backend------//
 function fetchPrice(url, username) {
   fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8"
-    },
-    body: JSON.stringify({
-      user_name: username,
-      num_of_events: Math.floor(Math.random() * 5) + 4
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      },
+      body: JSON.stringify({
+        user_name: username,
+        num_of_events: Math.floor(Math.random() * 5) + 4
+      })
     })
-  })
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -226,7 +226,6 @@ function render(data) {
   let i = 0;
 
   let myInt = setInterval(() => {
-<<<<<<< HEAD
       TIMEINTERVAL = i;
       let newDataSet = dataset.slice(0, i + 1);
       console.log(MYINDEX * (1 + priceIndex[i + 1]), priceIndex[i + 1]);
@@ -243,24 +242,18 @@ function render(data) {
       drawChart(ctx, newDataSet);
       drawChart(vtx, newMVdataSet);
       updateStats();
-=======
-    TIMEINTERVAL = i;
-    let newDataSet = dataset.slice(0, i + 1);
-    console.log(newDataSet);
->>>>>>> e391a4361c7c751a7ccdc0b692563c070a816c7b
 
-    CURRENTPRICE = newDataSet[i].price;
+      CURRENTPRICE = newDataSet[i].price;
 
-    SECURITIESVALUE = CURRENTPRICE * COSTBASIS.length;
-    PORTFOLIOVALUES.push(SECURITIESVALUE + CASHVALUE);
-    let newMVdataSet = createDataset(PORTFOLIOVALUES);
-    // let newMVdataSet = marketValue.slice(0, i + 1);
+      SECURITIESVALUE = CURRENTPRICE * COSTBASIS.length;
+      PORTFOLIOVALUES.push(SECURITIESVALUE + CASHVALUE);
+      let newMVdataSet = createDataset(PORTFOLIOVALUES);
+      // let newMVdataSet = marketValue.slice(0, i + 1);
 
-    drawChart(ctx, newDataSet);
-    drawChart(vtx, newMVdataSet);
-    updateStats();
+      drawChart(ctx, newDataSet);
+      drawChart(vtx, newMVdataSet);
+      updateStats();
 
-<<<<<<< HEAD
       let alertDiv = document.getElementById('event-message')
       if (eventStartTime.includes(i)) {
         alertDiv.innerHTML =
@@ -277,55 +270,20 @@ function render(data) {
       }
     },
     1000);
-=======
-    i++;
-
-    let eventData = getData("eventsData");
-    let events = getData("events");
-    let eventStartTime = eventData.map(event => {
-      return event.interval;
-    });
-
-    let alertDiv = document.getElementById("event-message");
-    if (eventStartTime.includes(i)) {
-      alertDiv.innerHTML = `<h1>${
-        events[eventStartTime.indexOf(i)].description
-      }</h1>`;
-      console.log(
-        CURRENTPRICE,
-        events[eventStartTime.indexOf(i)].description,
-        i,
-        PRICES[i]
-      );
-      setTimeout(() => {
-        alertDiv.innerHTML = "";
-      }, 2000);
-    } else {
-      console.log(CURRENTPRICE, i, PRICES[i]);
-    }
-
-    if (i === 60) {
-      clearInterval(myInt);
-      postGame();
-    }
-  }, 1000);
->>>>>>> e391a4361c7c751a7ccdc0b692563c070a816c7b
 }
 
 // ---------------draw Chart---------------------//
 function drawChart(tag, data) {
   let dataset = {
     labels: data.map(el => (el = "")),
-    datasets: [
-      {
-        label: "$",
-        data: data.map(el => el.price),
-        fillColor: "rgba(220,220,220,0.2)",
-        strokeColor: "rgba(220,220,220,1)",
-        pointColor: "rgba(220,220,220,1)",
-        pointStrokeColor: "#fff"
-      }
-    ]
+    datasets: [{
+      label: "$",
+      data: data.map(el => el.price),
+      fillColor: "rgba(220,220,220,0.2)",
+      strokeColor: "rgba(220,220,220,1)",
+      pointColor: "rgba(220,220,220,1)",
+      pointStrokeColor: "#fff"
+    }]
   };
 
   let myLineChart = new Chart(tag, {
@@ -333,13 +291,11 @@ function drawChart(tag, data) {
     data: dataset,
     options: {
       scales: {
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true
-            }
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
           }
-        ]
+        }]
       },
       events: ["click"],
       responsive: true,
@@ -352,30 +308,12 @@ function drawChart(tag, data) {
 //----------create Stats---------------//
 function updateStats() {
   document.getElementById("stats").innerHTML = `
-<<<<<<< HEAD
-    <div>
-    <h2>Cash Value: $${CASHVALUE.toFixed(2)}</h2>
-    <h2>Securities Value: $${SECURITIESVALUE.toFixed(2)}</h2>
-    <h2>Total Value: $${(CASHVALUE + SECURITIESVALUE).toFixed(2)}</h2>
-    <h2>Shares: ${COSTBASIS.length}</h2>
-    <h2>Profit/Loss: $${(CASHVALUE + SECURITIESVALUE - 1000).toFixed(2)}</h2>
-=======
     <div class="mdl-color--teal-300">
-    <h4>Net Value: <strong class="mdl-color--pink-300">$${
-      PORTFOLIOVALUES.length > 0
-        ? PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1].toFixed(2)
-        : CASHVALUE.toFixed(2)
-    }</strong> | Cash Value: <strong>$${CASHVALUE.toFixed(
-    2
-  )}</strong> |  Securities Value: <strong>$${SECURITIESVALUE.toFixed(
-    2
-  )}</strong> </h4>
-    <h4> | Shares: ${COSTBASIS.length} | Profit/Loss: $${
-    PORTFOLIOVALUES.length > 0
-      ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000).toFixed(2)
-      : (CASHVALUE - 1000).toFixed(2)
-  } </h4>
->>>>>>> e391a4361c7c751a7ccdc0b692563c070a816c7b
+    <h4>Cash Value: $${CASHVALUE.toFixed(2)}
+    Securities Value: $${SECURITIESVALUE.toFixed(2)}
+    Total Value: $${(CASHVALUE + SECURITIESVALUE).toFixed(2)}
+    <h4>Shares: ${COSTBASIS.length}
+    Profit/Loss: $${(CASHVALUE + SECURITIESVALUE - 1000).toFixed(2)}</h4>
     </div>
   `;
 }
@@ -419,15 +357,8 @@ function postGame() {
 function endGame() {
   //Change the buttons to the reset button and add an
   //event listener that reloads the page when rest is clicked
-<<<<<<< HEAD
   console.log('fired');
   let buttons = document.getElementById('buttons')
-=======
-  console.log("fired");
-
-  showLeaderBoard();
-  let buttons = document.getElementById("buttons");
->>>>>>> e391a4361c7c751a7ccdc0b692563c070a816c7b
 
   buttons.innerHTML = `
     <button id="reset-button" name="reset-button">RESET</button>
@@ -444,12 +375,7 @@ function endGame() {
   //Add stats and leaderboard
 }
 
-<<<<<<< HEAD
 function showLeaderBoard(data) {
-=======
-function showLeaderBoard() {
-  console.log("fired");
->>>>>>> e391a4361c7c751a7ccdc0b692563c070a816c7b
 
   //show the stats
   //Percent return of the stock
@@ -479,7 +405,6 @@ function showLeaderBoard() {
   }
 
 
-<<<<<<< HEAD
   document.getElementById('event-message').innerHTML = `
     <h2>${message}</h2>
     <ul>
@@ -492,17 +417,6 @@ function showLeaderBoard() {
     <ul>${data.map(game => {
       return `<li>${game.user_name} - $${game.net_value.toFixed(2)}</li>`
       }).join('')}
-=======
-  document.getElementById("event-message").innerHTML = `
-    <ul>
-      <li>TANK's return for the period was ${(CURRENTINDEX - 100).toFixed(
-        2
-      )}%</li>
-      <li>Your return for the period was ${(
-        (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000) /
-        1000
-      ).toFixed(2)}%</li>
->>>>>>> e391a4361c7c751a7ccdc0b692563c070a816c7b
     </ul>
   `;
 
