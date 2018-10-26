@@ -1,24 +1,16 @@
 const URL = "http://localhost:3000/games";
 TIMEINTERVAL = 0;
 CURRENTPRICE = 0;
+CURRENTINDEX = 0;
 CASHVALUE = 1000;
 SECURITIESVALUE = 0;
 COSTBASIS = [];
 PORTFOLIOVALUES = [];
+PRICES = [];
 
 document.addEventListener("DOMContentLoaded", function () {
   buttonEventListener();
   updateStats();
-  // document.getElementById('stats').innerHTML = `
-  //   <div>
-  //     <h2>Cash value: ${CASHVALUE}</h2>
-  //     <h2>Securities value: ${SECURITIESVALUE}</h2>
-  //     <h2>Total value: ${CASHVALUE + SECURITIESVALUE}</h2>
-  //     <h2>Shares: ${COSTBASIS.length}</h2>
-  //     <h2>Profit/Loss: ${0}</h2>
-
-  //   </div>
-  // `
 });
 
 //----------global listener--------------//
@@ -30,9 +22,9 @@ function buttonEventListener() {
       let valueChartContainer = document.getElementById("value-chart");
 
       priceChartContainer.innerHTML = `
-      <canvas id="tradeChart" width="800" height="400"></canvas>`;
+      <canvas id="tradeChart" width="400" height="200"></canvas>`;
       valueChartContainer.innerHTML = `
-      <canvas id="valueChart" width="800" height="400"></canvas>`;
+      <canvas id="valueChart" width="400" height="200"></canvas>`;
 
       fetchPrice(URL); //<------start the game-------
       event.target.disabled = true;
@@ -129,11 +121,12 @@ function fetchPrice(url) {
 
 
       valueData = []
-
       priceIndex = data.prices.map(el => el.value);
-
-      let price = 100,
-        priceData = [];
+      priceIndex.unshift(0)
+      PRICES = priceIndex.slice()
+      let price = 100
+      priceData = [];
+      PORTFOLIOVALUES.push(CASHVALUE)
       for (const el of priceIndex) {
         price = price * (1 + el);
         priceData.push(price);
@@ -175,11 +168,15 @@ function render(data) {
   let myInt = setInterval(() => {
       TIMEINTERVAL = i;
       let newDataSet = dataset.slice(0, i + 1);
+      console.log(newDataSet);
+
       CURRENTPRICE = newDataSet[i].price;
+
       SECURITIESVALUE = CURRENTPRICE * COSTBASIS.length;
       PORTFOLIOVALUES.push(SECURITIESVALUE + CASHVALUE);
       let newMVdataSet = createDataset(PORTFOLIOVALUES);
       // let newMVdataSet = marketValue.slice(0, i + 1);
+
 
       drawChart(ctx, newDataSet);
       drawChart(vtx, newMVdataSet);
@@ -198,18 +195,22 @@ function render(data) {
       if (eventStartTime.includes(i)) {
         alertDiv.innerHTML =
           `<h1>${events[eventStartTime.indexOf(i)].description}</h1>`
+        console.log(CURRENTPRICE, events[eventStartTime.indexOf(i)].description, i, PRICES[i]);
         setTimeout(() => {
           alertDiv.innerHTML = ""
         }, 2000)
+
+      } else {
+        console.log(CURRENTPRICE, i, PRICES[i]);
 
       }
 
 
 
 
-      if (i === 59) {
+      if (i === 60) {
         clearInterval(myInt);
-        endGame();
+        postGame();
       }
     },
     1000);
@@ -253,11 +254,11 @@ function drawChart(tag, data) {
 function updateStats() {
   document.getElementById('stats').innerHTML = `
     <div>
-    <h2>Cash Value: ${CASHVALUE}</h2>
-    <h2>Securities Value: ${SECURITIESVALUE}</h2>
-    <h2>Total Value: ${PORTFOLIOVALUES.length > 0 ? PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] : CASHVALUE}</h2>
+    <h2>Cash Value: $${CASHVALUE.toFixed(2)}</h2>
+    <h2>Securities Value: $${SECURITIESVALUE.toFixed(2)}</h2>
+    <h2>Total Value: $${PORTFOLIOVALUES.length > 0 ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1]).toFixed(2) : CASHVALUE.toFixed(2)}</h2>
     <h2>Shares: ${COSTBASIS.length}</h2>
-    <h2>Profit/Loss: ${PORTFOLIOVALUES.length > 0 ? PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000 : CASHVALUE - 1000}</h2>
+    <h2>Profit/Loss: $${PORTFOLIOVALUES.length > 0 ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000).toFixed(2) : (CASHVALUE - 1000).toFixed(2)}</h2>
     </div>
   `
 
@@ -292,9 +293,9 @@ function getData(dataName) {
 // }
 
 
-function endGame() {
+function postGame() {
 
-  console.log(URL + '/' + getData("game"));
+  //Update the content in the data base to include the ending value of your portfolio
   fetch(URL + '/' + getData("game"), {
     method: 'PATCH',
     headers: {
@@ -305,5 +306,51 @@ function endGame() {
       end_price: CURRENTPRICE,
       id: getData("game")
     })
+  }).then(() => endGame())
+
+
+
+}
+
+function endGame() {
+  //Change the buttons to the reset button and add an 
+  //event listener that reloads the page when rest is clicked
+  console.log('fired');
+
+
+  showLeaderBoard();
+  let buttons = document.getElementById('buttons')
+
+  buttons.innerHTML = `
+    <button id="reset-button" name="reset-button">RESET</button>
+  `
+  document.getElementById('reset-button').addEventListener('click', () => {
+    location.reload(true)
   })
+
+  //Add stats and leaderboard
+
+}
+
+function showLeaderBoard() {
+  console.log('fired');
+
+  //show the stats
+  //Percent return of the stock
+  //Percet return of your portfolio
+  //if you are within 5% of the stock you did alright, less than 5% you did poorly, greater than 5% you did well
+  console.log(CURRENTINDEX);
+
+  document.getElementById('event-message').innerHTML = `
+    <ul>
+      <li>TANK's return for the period was ${((CURRENTINDEX - 100)).toFixed(2)}%</li>
+      <li>Your return for the period was ${((PORTFOLIOVALUES[PORTFOLIOVALUES.length-1] - 1000) / 1000).toFixed(2)}%</li>
+    </ul>
+  `
+
+
+  //Number of transactions
+  //get the top 10 games by value
+
+
 }

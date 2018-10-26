@@ -21,10 +21,15 @@ class GamesController < ApplicationController
   end
 
   def update
-    puts params
     gp = game_params
     game = Game.find(game_params["id"])
     game.update(net_value: game_params["net_value"], end_price: game_params["end_price"])
+  end
+
+  def login
+    params.user_name
+
+    User.find_or_create_by(user_name: user)
   end
 
   private
