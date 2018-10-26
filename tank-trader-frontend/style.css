@@ -3,10 +3,13 @@
 }
 
 #buttons {
+  display: none;
   text-align: center;
 }
 
-#message {}
+#message {
+  float: right;
+}
 
 img {
   width: 200px;
@@ -44,5 +47,11 @@ button[disabled] {
 }
 
 #stats {
+  display: none;
   float: left;
+}
+
+#user-form .form-login {
+  text-align: center;
+  padding: 15px;
 }

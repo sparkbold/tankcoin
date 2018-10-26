@@ -1,4 +1,6 @@
-const URL = "http://localhost:3000/games";
+const gamesURL = "http://localhost:3000/games";
+const usersURL = "http://localhost:3000/users";
+
 TIMEINTERVAL = 0;
 CURRENTPRICE = 0;
 CURRENTINDEX = 0;
@@ -7,16 +9,71 @@ SECURITIESVALUE = 0;
 COSTBASIS = [];
 PORTFOLIOVALUES = [];
 PRICES = [];
+CURRENTUSER = "";
 
 document.addEventListener("DOMContentLoaded", function () {
+  fetchUsers();
+  addUserForm();
   buttonEventListener();
   updateStats();
 });
-
+// --------------GET ALL CURRENT USERS-----------//
+function fetchUsers() {
+  fetch(usersURL)
+    .then(resp => resp.json())
+    .then(users => storeData("allUsers", users));
+}
 //----------global listener--------------//
 function buttonEventListener() {
   document.addEventListener("click", event => {
-    let starTime = 0;
+    let allUsers = getData("allUsers").map(el => el.user_name);
+    // debugger;
+    if (event.target.name === "login") {
+      event.preventDefault();
+      console.log(event.target.name);
+      let username = event.target.form.elements.username.value.toLowerCase();
+
+      if (username === "" || username === " ") {
+        alert("Please type correct username: no space or empty");
+      } else if (allUsers.includes(username)) {
+        CURRENTUSER = username;
+        document.getElementById("stats").style.display = "block";
+        document.getElementById("buttons").style.display = "block";
+        updateStats();
+        console.log("found you!!", CURRENTUSER);
+        document.getElementById("user-form").style.display = "none";
+      } else {
+        alert("User is not exist! Please create user!");
+      }
+    }
+
+    if (event.target.name === "create") {
+      event.preventDefault();
+      console.log(event.target.name);
+      let username = event.target.form.elements.username.value.toLowerCase();
+
+      if (username === "" || username === " ") {
+        alert("Please type correct username: no space or empty");
+      } else if (allUsers.includes(username)) {
+        alert("Username is already exist. Try again!");
+      } else {
+        CURRENTUSER = username.toLowerCase();
+        document.getElementById("stats").style.display = "block";
+        document.getElementById("buttons").style.display = "block";
+        document.getElementById("user-form").style.display = "none";
+        updateStats();
+        fetch(usersURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          body: JSON.stringify({
+            user_name: CURRENTUSER
+          })
+        });
+      }
+    }
+
     if (event.target.name === "play-button") {
       let priceChartContainer = document.getElementById("price-chart");
       let valueChartContainer = document.getElementById("value-chart");
@@ -26,7 +83,7 @@ function buttonEventListener() {
       valueChartContainer.innerHTML = `
       <canvas id="valueChart" width="400" height="200"></canvas>`;
 
-      fetchPrice(URL); //<------start the game-------
+      fetchPrice(gamesURL, CURRENTUSER); //<------start the game-------
       event.target.disabled = true;
       setTimeout(() => {
         document.getElementById("buy-button").disabled = false;
@@ -34,19 +91,17 @@ function buttonEventListener() {
 
         document.getElementById("sell-button").disabled = false;
         document.getElementById("sell-all").disabled = false;
-
       }, 1000);
     }
 
+    //----------- buyAction--------------//
     if (event.target.name === "buy-button") {
-      // buyAction()
-
       if (CASHVALUE > CURRENTPRICE) {
         COSTBASIS.push(CURRENTPRICE);
         CASHVALUE -= CURRENTPRICE;
         console.log(COSTBASIS, Math.round(CASHVALUE));
       } else {
-        console.log('You dont have enough cash');
+        console.log("You dont have enough cash");
       }
 
       // console.log(priceIndexData);
@@ -56,68 +111,61 @@ function buttonEventListener() {
     if (event.target.name === "buy-all-button") {
       // buyAction()
       if (CASHVALUE > CURRENTPRICE) {
-        let shares = Math.floor(CASHVALUE / CURRENTPRICE)
+        let shares = Math.floor(CASHVALUE / CURRENTPRICE);
         for (let i = 1; i < shares; i++) {
           COSTBASIS.push(CURRENTPRICE);
         }
 
-        CASHVALUE -= (CURRENTPRICE * shares);
+        CASHVALUE -= CURRENTPRICE * shares;
         console.log(COSTBASIS, Math.round(CASHVALUE));
       } else {
-        console.log('You dont have enough cash');
+        console.log("You dont have enough cash");
       }
-
-      // console.log(priceIndexData);
-      // grab data-point at the time click
     }
 
-
+    //------------- sellAction ---------------//
     if (event.target.name === "sell-button") {
-      // sellAction()
       if (COSTBASIS.length > 0) {
         CASHVALUE += CURRENTPRICE;
 
         COSTBASIS.shift(CURRENTPRICE);
         console.log(COSTBASIS, Math.round(CASHVALUE));
       } else {
-        console.log('You dont have stock to sell');
+        console.log("You dont have stock to sell");
       }
     }
 
     if (event.target.name === "sell-all-button") {
-      // sellAction()
       if (COSTBASIS.length > 0) {
         CASHVALUE += CURRENTPRICE * COSTBASIS.length;
 
         COSTBASIS.length = 0;
         console.log(COSTBASIS, Math.round(CASHVALUE));
       } else {
-        console.log('You dont have stock to sell');
+        console.log("You dont have stock to sell");
       }
     }
-
-
   });
 }
 
 // --------fetch data from json backend------//
-function fetchPrice(url) {
+function fetchPrice(url, username) {
   fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8"
       },
       body: JSON.stringify({
-        user_name: "trung",
+        user_name: username,
         num_of_events: Math.floor(Math.random() * 5) + 4
       })
     })
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      storeData("eventsData", data.game_events)
-      storeData("events", data.events)
-      storeData("game", data.game_id)
+      storeData("eventsData", data.game_events);
+      storeData("events", data.events);
+      storeData("game", data.game_id);
 
 
       valueData = []
@@ -130,7 +178,6 @@ function fetchPrice(url) {
       for (const el of priceIndex) {
         price = price * (1 + el);
         priceData.push(price);
-
       }
       return render(priceData);
     });
@@ -140,8 +187,6 @@ function createDataset(data) {
   //create dataset
   let dataset = [];
   for (let i = 0; i < data.length; i++) {
-
-
     const el = {
       time: i,
       price: data[i]
@@ -152,16 +197,12 @@ function createDataset(data) {
   return dataset;
 }
 
-
 // -----------------render chart------------//
 function render(data) {
   let dataset = createDataset(data);
   storeData("priceIndex", dataset);
   let ctx = document.getElementById("tradeChart");
   let vtx = document.getElementById("valueChart");
-
-
-
 
   //render chart
   let i = 0;
@@ -207,6 +248,15 @@ function render(data) {
 
 
 
+      let alertDiv = document.getElementById("event-message");
+      if (eventStartTime.includes(i)) {
+        alertDiv.innerHTML = `<h1>${
+        events[eventStartTime.indexOf(i)].description
+      }</h1>`;
+        setTimeout(() => {
+          alertDiv.innerHTML = "";
+        }, 2000);
+      }
 
       if (i === 60) {
         clearInterval(myInt);
@@ -218,7 +268,6 @@ function render(data) {
 
 // ---------------draw Chart---------------------//
 function drawChart(tag, data) {
-
   let dataset = {
     labels: data.map(el => (el = "")),
     datasets: [{
@@ -242,17 +291,16 @@ function drawChart(tag, data) {
         }]
       },
       events: ["click"],
-      responsive: false,
+      responsive: true,
       animation: {
         duration: 0
       }
     }
   });
-
 }
-//----------create BUY/SELL---------------//
+//----------create Stats---------------//
 function updateStats() {
-  document.getElementById('stats').innerHTML = `
+  document.getElementById("stats").innerHTML = `
     <div>
     <h2>Cash Value: $${CASHVALUE.toFixed(2)}</h2>
     <h2>Securities Value: $${SECURITIESVALUE.toFixed(2)}</h2>
@@ -260,15 +308,34 @@ function updateStats() {
     <h2>Shares: ${COSTBASIS.length}</h2>
     <h2>Profit/Loss: $${PORTFOLIOVALUES.length > 0 ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000).toFixed(2) : (CASHVALUE - 1000).toFixed(2)}</h2>
     </div>
-  `
-
-
+  `;
 }
 
 //----------create BUY/SELL---------------//
 
 //----------create user--------------//
-function createUser() {}
+function addUserForm() {
+  // create a new div element
+  var userForm = document.createElement("div");
+  // set atribute
+  userForm.setAttribute("id", "user-form");
+  // and give it some content
+  userForm.innerHTML = `
+      <form action="" method="get" class="form-login">
+        <div class="form-login">
+          <label for="name">Enter your username: </label><br>
+          <input type="text" name="username" id="username" required>
+        </div>
+        <div class="form-login">
+          <input type="submit" name="login" value="LOGIN">
+          <input type="submit" name="create" value="CREATE">
+        </div>
+      </form>
+  `;
+  // add the newly created element and its content into the DOM
+  let currentDiv = document.getElementById("buttons");
+  document.body.insertBefore(userForm, currentDiv);
+}
 
 //--------save game-------------//
 function saveGame() {}
@@ -280,7 +347,6 @@ function storeData(dataName, jsonDataset) {
 
 function getData(dataName) {
   let data = localStorage.getItem(dataName);
-
   return JSON.parse(data);
 }
 // Update chart with new data
