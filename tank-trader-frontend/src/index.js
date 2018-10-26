@@ -10,6 +10,10 @@ COSTBASIS = [];
 PORTFOLIOVALUES = [];
 PRICES = [];
 CURRENTUSER = "";
+MYINDEX = 100;
+TRANSACTIONCOUNTER = 0;
+SHARESBOUGHT = 0;
+SHARESSOLD = 0;
 
 document.addEventListener("DOMContentLoaded", function () {
   fetchUsers();
@@ -99,7 +103,11 @@ function buttonEventListener() {
       if (CASHVALUE > CURRENTPRICE) {
         COSTBASIS.push(CURRENTPRICE);
         CASHVALUE -= CURRENTPRICE;
-        console.log(COSTBASIS, Math.round(CASHVALUE));
+        SECURITIESVALUE = COSTBASIS.length * CURRENTPRICE;
+        console.log(CURRENTPRICE);
+        TRANSACTIONCOUNTER++;
+        SHARESBOUGHT++
+        updateStats();
       } else {
         console.log("You dont have enough cash");
       }
@@ -112,12 +120,18 @@ function buttonEventListener() {
       // buyAction()
       if (CASHVALUE > CURRENTPRICE) {
         let shares = Math.floor(CASHVALUE / CURRENTPRICE);
-        for (let i = 1; i < shares; i++) {
+        SHARESBOUGHT += shares
+        for (let i = 1; i <= shares; i++) {
           COSTBASIS.push(CURRENTPRICE);
         }
 
         CASHVALUE -= CURRENTPRICE * shares;
+        SECURITIESVALUE = COSTBASIS.length * CURRENTPRICE;
+        TRANSACTIONCOUNTER++;
+
+
         console.log(COSTBASIS, Math.round(CASHVALUE));
+        updateStats();
       } else {
         console.log("You dont have enough cash");
       }
@@ -129,7 +143,12 @@ function buttonEventListener() {
         CASHVALUE += CURRENTPRICE;
 
         COSTBASIS.shift(CURRENTPRICE);
+        SECURITIESVALUE = COSTBASIS.length * CURRENTPRICE;
+        TRANSACTIONCOUNTER++;
+        SHARESSOLD++;
+
         console.log(COSTBASIS, Math.round(CASHVALUE));
+        updateStats();
       } else {
         console.log("You dont have stock to sell");
       }
@@ -138,9 +157,13 @@ function buttonEventListener() {
     if (event.target.name === "sell-all-button") {
       if (COSTBASIS.length > 0) {
         CASHVALUE += CURRENTPRICE * COSTBASIS.length;
-
+        TRANSACTIONCOUNTER++;
+        SHARESSOLD += COSTBASIS.length;
         COSTBASIS.length = 0;
+        SECURITIESVALUE = COSTBASIS.length * CURRENTPRICE;
+
         console.log(COSTBASIS, Math.round(CASHVALUE));
+        updateStats();
       } else {
         console.log("You dont have stock to sell");
       }
@@ -206,10 +229,12 @@ function render(data) {
 
   //render chart
   let i = 0;
+
   let myInt = setInterval(() => {
       TIMEINTERVAL = i;
       let newDataSet = dataset.slice(0, i + 1);
-      console.log(newDataSet);
+      console.log(MYINDEX * (1 + priceIndex[i + 1]), priceIndex[i + 1]);
+
 
       CURRENTPRICE = newDataSet[i].price;
 
@@ -236,17 +261,13 @@ function render(data) {
       if (eventStartTime.includes(i)) {
         alertDiv.innerHTML =
           `<h1>${events[eventStartTime.indexOf(i)].description}</h1>`
-        console.log(CURRENTPRICE, events[eventStartTime.indexOf(i)].description, i, PRICES[i]);
         setTimeout(() => {
           alertDiv.innerHTML = ""
         }, 2000)
 
-      } else {
-        console.log(CURRENTPRICE, i, PRICES[i]);
-
       }
 
-      if (i === 60) {
+      if (i === 61) {
         clearInterval(myInt);
         postGame();
       }
@@ -292,9 +313,9 @@ function updateStats() {
     <div>
     <h2>Cash Value: $${CASHVALUE.toFixed(2)}</h2>
     <h2>Securities Value: $${SECURITIESVALUE.toFixed(2)}</h2>
-    <h2>Total Value: $${PORTFOLIOVALUES.length > 0 ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1]).toFixed(2) : CASHVALUE.toFixed(2)}</h2>
+    <h2>Total Value: $${(CASHVALUE + SECURITIESVALUE).toFixed(2)}</h2>
     <h2>Shares: ${COSTBASIS.length}</h2>
-    <h2>Profit/Loss: $${PORTFOLIOVALUES.length > 0 ? (PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000).toFixed(2) : (CASHVALUE - 1000).toFixed(2)}</h2>
+    <h2>Profit/Loss: $${(CASHVALUE + SECURITIESVALUE - 1000).toFixed(2)}</h2>
     </div>
   `;
 }
@@ -370,9 +391,6 @@ function endGame() {
   //Change the buttons to the reset button and add an 
   //event listener that reloads the page when rest is clicked
   console.log('fired');
-
-
-  showLeaderBoard();
   let buttons = document.getElementById('buttons')
 
   buttons.innerHTML = `
@@ -382,23 +400,57 @@ function endGame() {
     location.reload(true)
   })
 
+  fetch(gamesURL + '/top10').then(resp => resp.json()).then(showLeaderBoard)
+
+
+
+
   //Add stats and leaderboard
 
 }
 
-function showLeaderBoard() {
-  console.log('fired');
+function showLeaderBoard(data) {
 
   //show the stats
   //Percent return of the stock
   //Percet return of your portfolio
   //if you are within 5% of the stock you did alright, less than 5% you did poorly, greater than 5% you did well
-  console.log(CURRENTINDEX);
+  let pD = ((PORTFOLIOVALUES[PORTFOLIOVALUES.length - 1] - 1000) / 10 - (CURRENTPRICE - 100))
+  let message = ""
+
+  switch (true) {
+    case (pD > 0.2):
+      message = "You can hang with the big boys!!!"
+      break;
+    case (pD > .0 && pD <= 0.2):
+      message = "Not bad. Now try it with the real thing"
+      break;
+    case (pD > -0.1 && pD <= 0.0):
+      message = "Let's not go making any huge bets anytime soon"
+      break;
+    case (pD > -0.3 && pD <= -0.1):
+      message = "Definitely don't quit your day job."
+      break;
+    case (pD <= -0.3):
+      message = "Do not pass go. Do not collect $200. Abort all hopes of making money in Crypto"
+      break;
+    default:
+      break;
+  }
+
 
   document.getElementById('event-message').innerHTML = `
+    <h2>${message}</h2>
     <ul>
-      <li>TANK's return for the period was ${((CURRENTINDEX - 100)).toFixed(2)}%</li>
-      <li>Your return for the period was ${((PORTFOLIOVALUES[PORTFOLIOVALUES.length-1] - 1000) / 1000).toFixed(2)}%</li>
+      <li>TANK's return for the period was ${((CURRENTPRICE - 100)).toFixed(2)}%</li>
+      <li>Your return for the period was ${((PORTFOLIOVALUES[PORTFOLIOVALUES.length-1] - 1000)/10).toFixed(2)}%</li>
+      <li>You made ${TRANSACTIONCOUNTER} transaction${TRANSACTIONCOUNTER > 1 ? "s": ""}</li>
+      <li>You bought ${SHARESBOUGHT} TANK coin${SHARESBOUGHT > 1 ? "s": ""} and sold ${SHARESSOLD}</li>
+    </ul>
+    <h2>Leaderboard:</h2>
+    <ul>${data.map(game => {
+      return `<li>${game.user_name} - $${game.net_value.toFixed(2)}</li>`
+      }).join('')}
     </ul>
   `
 
