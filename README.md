@@ -2,10 +2,10 @@
 
 ## Deliverble:
 
-- User can login/create with username //DONE
-- User can create game and do transaction actions (buy/sell) //DONE
-- User can see the game leaderboard at the end of the game //NOT YET
-- User can see analytics at the end of the game //NOT YET
+- User can login/create with username 
+- User can create game and do transaction actions (buy/sell) 
+- User can see the game leaderboard at the end of the game 
+- User can see analytics at the end of the game 
 
 ## Game instruction:
 
@@ -26,31 +26,3 @@
 - stock price is created from a normal distribution with randomly modifier: skewness and kurtosis
 - events are random factors that would adjust stock price (based on the story outcome)
 - each game created will have a number of events that user need to react to
-
-## Implementation:
-
-### back-end
-
-- generate dataset for a game once created and render as json
-- json dataset contain: price indices, events
-
-### front-end
-
-- render action buttons: play/start, buy/sell
-- render chart: display data with interval 1s for 60s
-- click event on buy/sell button grab current market price:
-
-  - if BUY action:
-
-    - add cost basic (current market price) to CB = []
-    - update CV = CB - CB
-    - update PV = stock number (length of CB[]) X market price
-    - update NET = CV + PV
-
-  - if SELL action:
-    - remove number of stock from STOCK = []
-    - subtract cost basic of stock value from cash balance CASH =[]
-    - add number of stocks x market value to MARKETVALUE = []
-
-- Game end when time is over OR net value is less than or equal 0.
--
